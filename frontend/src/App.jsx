@@ -12,6 +12,8 @@ import AdminDashboard from "./AdminDashboard.jsx";
 
 // Components
 import Header from "./components/Header.jsx";
+import LandingPage from "./components/LandingPage.jsx";
+import AdminLogin from "./components/AdminLogin.jsx";
 import ServiceList, { ServiceCard } from "./components/ServiceList.jsx";
 import SessionChat from "./components/SessionChat.jsx";
 import RentaSimulator from "./components/RentaSimulator.jsx";
@@ -123,6 +125,7 @@ export default function App() {
   const [showSearch, setShowSearch] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem("romainge-onboarded"));
   const [deferredInstall, setDeferredInstall] = useState(null);
+  const [adminUser, setAdminUser] = useState(null);
 
   const th = themes[themeName] || themes.dark;
   const s = getStyles(th);
@@ -205,6 +208,17 @@ export default function App() {
     localStorage.setItem("romainge-onboarded", "1");
   };
 
+  const handleAdminLogin = (admin) => {
+    setAdminUser(admin);
+    setView("admin-dashboard");
+  };
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem("adminToken");
+    setAdminUser(null);
+    setView("home");
+  };
+
   const navItems = [
     { key: "home", label: t("home", lang), icon: "🏠" },
     { key: "services", label: t("services", lang), icon: "📋" },
@@ -213,6 +227,11 @@ export default function App() {
     { key: "renta", label: t("renta", lang), icon: "🧮" },
     { key: "admin", label: "Admin", icon: "🛡️" },
   ];
+
+  // ─── Admin Login Page (full-page, no header) ──────────────────
+  if (view === "admin") {
+    return <AdminLogin onLogin={handleAdminLogin} onBack={() => setView("home")} th={th} />;
+  }
 
   return (
     <div style={{ minHeight: "100vh", background: th.bg, color: th.text, position: "relative" }}>
@@ -242,80 +261,10 @@ export default function App() {
 
         {/* HOME / LANDING */}
         {view === "home" && (
-          <div style={{ animation: "fadeIn 0.6s ease" }}>
-            <div style={{ textAlign: "center", padding: "60px 0 48px" }}>
-              <div style={{ display: "inline-block", padding: "6px 16px", borderRadius: 20,
-                background: th.accentBg, border: `1px solid ${th.accentBorder}`,
-                fontFamily: "'DM Sans'", fontSize: 12, color: th.accent, marginBottom: 24 }}>
-                {t("heroTag", lang)}
-              </div>
-              <h1 style={{ fontFamily: "'Playfair Display'", fontSize: "clamp(36px, 5vw, 60px)",
-                fontWeight: 700, lineHeight: 1.1, marginBottom: 20,
-                background: `linear-gradient(135deg, ${th.text} 30%, ${th.accent} 100%)`,
-                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", whiteSpace: "pre-line" }}>
-                {t("heroTitle", lang)}
-              </h1>
-              <p style={{ fontFamily: "'DM Sans'", fontSize: 17, color: th.textSecondary,
-                maxWidth: 560, margin: "0 auto 40px", lineHeight: 1.7 }}>
-                {typeof t("heroDesc", lang) === "function" ? t("heroDesc", lang)(services.length) : `${services.length} agentes IA especializados.`}
-              </p>
-              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-                <button onClick={() => setView("session-login")} style={{
-                  ...s.primaryBtn, fontSize: 15, padding: "16px 32px",
-                  background: th.accentGradient, color: th.bg, fontWeight: 600, animation: "glow 3s infinite",
-                }}>{t("accessSession", lang)}</button>
-                <button onClick={() => setView("services")} style={{
-                  ...s.primaryBtn, fontSize: 15, padding: "16px 32px", background: th.bgTertiary, color: th.text,
-                }}>{t("viewServices", lang)}</button>
-                <button onClick={() => setView("renta")} style={{
-                  ...s.primaryBtn, fontSize: 15, padding: "16px 32px", background: th.bgTertiary, color: th.text,
-                }}>{t("renta", lang)}</button>
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 48 }}>
-              {[["36+", t("agents", lang)], ["24/7", t("availability", lang)], ["∞", t("simultaneousCalls", lang)], ["< 3s", t("aiResponse", lang)]].map(([val, label]) => (
-                <div key={label} style={{ textAlign: "center", padding: "28px 16px", background: th.bgSecondary, borderRadius: 16, border: `1px solid ${th.border}` }}>
-                  <div style={{ fontFamily: "'Playfair Display'", fontSize: 32, fontWeight: 700, color: th.accent }}>{val}</div>
-                  <div style={{ fontFamily: "'DM Sans'", fontSize: 12, color: th.textSecondary, marginTop: 4 }}>{label}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* SEO content section */}
-            <div style={{ maxWidth: 800, margin: "0 auto 48px", padding: "32px 0" }}>
-              <h2 style={{ ...s.sectionTitle, textAlign: "center", marginBottom: 24 }}>{t("featuredServices", lang)}</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
-                {services.slice(0, 8).map(svc => (
-                  <ServiceCard key={svc.id} service={svc} onClick={sv => { setSelectedService(sv); setView("services"); }} th={th} />
-                ))}
-              </div>
-              <div style={{ textAlign: "center", marginTop: 20 }}>
-                <button onClick={() => setView("services")} style={{ ...s.primaryBtn, background: th.bgTertiary, color: th.textSecondary }}>
-                  {typeof t("viewAllServices", lang) === "function" ? t("viewAllServices", lang)(services.length) : `Ver los ${services.length} servicios →`}
-                </button>
-              </div>
-            </div>
-
-            {/* SEO: How it works */}
-            <div style={{ background: th.bgSecondary, borderRadius: 24, padding: "40px 32px", border: `1px solid ${th.border}`, marginBottom: 48 }}>
-              <h2 style={{ ...s.sectionTitle, textAlign: "center", marginBottom: 32 }}>¿Cómo funciona?</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24 }}>
-                {[
-                  { icon: "📞", title: "1. Llama al 900", desc: "Nuestro agente IA atiende tu llamada y clasifica tu consulta fiscal en segundos." },
-                  { icon: "🔑", title: "2. Recibe tu clave", desc: "Al finalizar, recibes una palabra clave única para acceder a tu sesión web privada." },
-                  { icon: "💬", title: "3. Chatea online", desc: "Continúa la conversación con tu agente especializado, sube documentos y descarga informes." },
-                  { icon: "✅", title: "4. Resuelve tu trámite", desc: "Completa tu gestión fiscal con asesoramiento IA disponible 24/7, sin esperas." },
-                ].map((item, i) => (
-                  <div key={i} style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>{item.icon}</div>
-                    <div style={{ fontFamily: "'DM Sans'", fontWeight: 600, fontSize: 15, color: th.text, marginBottom: 8 }}>{item.title}</div>
-                    <div style={{ fontFamily: "'DM Sans'", fontSize: 13, color: th.textSecondary, lineHeight: 1.6 }}>{item.desc}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <LandingPage
+            th={th} lang={lang} t={t} services={services}
+            setView={setView} setSelectedService={setSelectedService}
+          />
         )}
 
         {/* SERVICES */}
@@ -402,9 +351,9 @@ export default function App() {
           />
         )}
 
-        {/* ADMIN DASHBOARD */}
-        {view === "admin" && (
-          <AdminDashboard th={th} onBack={() => setView("home")} />
+        {/* ADMIN DASHBOARD (authenticated) */}
+        {view === "admin-dashboard" && adminUser && (
+          <AdminDashboard th={th} onBack={handleAdminLogout} />
         )}
       </main>
 

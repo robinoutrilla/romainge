@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Backups (generated)
+backend/backups/
+
+# Prisma generated client
+backend/lib/generated/
+
+# Snapshots (regenerable)
+frontend/tests/__snapshots__/
+
+# Temporary
+*.tmp
+.cache/

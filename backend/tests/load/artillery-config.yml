@@ -1,0 +1,112 @@
+# ═══════════════════════════════════════════════════════════════
+# Artillery load test — Simular 1000 llamadas simultáneas
+# ═══════════════════════════════════════════════════════════════
+#
+# Instalar: npm install -g artillery
+# Ejecutar: artillery run tests/load/artillery-config.yml
+# Reporte:  artillery run --output report.json tests/load/artillery-config.yml
+#           artillery report report.json
+
+config:
+  target: "http://localhost:3001"
+  phases:
+    # Warm-up: 10 usuarios/seg durante 10 segundos
+    - duration: 10
+      arrivalRate: 10
+      name: "Warm-up"
+
+    # Ramp-up: de 10 a 100 usuarios/seg en 30 segundos
+    - duration: 30
+      arrivalRate: 10
+      rampTo: 100
+      name: "Ramp-up"
+
+    # Sustained load: 100 usuarios/seg durante 60 segundos
+    - duration: 60
+      arrivalRate: 100
+      name: "Sustained load (100 req/s)"
+
+    # Spike: 200 usuarios/seg durante 20 segundos
+    - duration: 20
+      arrivalRate: 200
+      name: "Spike (200 req/s)"
+
+    # Peak: 500 usuarios/seg durante 10 segundos
+    - duration: 10
+      arrivalRate: 500
+      name: "Peak (500 req/s)"
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+  # Thresholds para pass/fail
+  ensure:
+    thresholds:
+      - http.response_time.p95: 3000   # P95 < 3s
+      - http.response_time.p99: 5000   # P99 < 5s
+      - http.codes.200: { min: 80 }    # >80% 200s
+
+scenarios:
+  # ─── Escenario 1: Health check (baseline) ────────────────────
+  - name: "Health check"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+
+  # ─── Escenario 2: Listar servicios ───────────────────────────
+  - name: "List services"
+    weight: 25
+    flow:
+      - get:
+          url: "/api/services"
+          expect:
+            - statusCode: 200
+
+  # ─── Escenario 3: Queue stats ───────────────────────────────
+  - name: "Queue stats"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/voice/queue-stats"
+          expect:
+            - statusCode: 200
+
+  # ─── Escenario 4: Calendario próximos plazos ─────────────────
+  - name: "Calendario fiscal"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/calendario/proximos?limit=5&profile=autonomo"
+          expect:
+            - statusCode: 200
+
+  # ─── Escenario 5: Simulador renta (CPU intensive) ────────────
+  - name: "Renta simulation"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/renta/simulate"
+          json:
+            rendimientosTrabajo: 30000
+            retencionesIRPF: 4500
+            situacionFamiliar: "soltero"
+            comunidadAutonoma: "madrid"
+            hijosmenores: 0
+          expect:
+            - statusCode: 200
+
+  # ─── Escenario 6: Login fallido (seguridad) ──────────────────
+  - name: "Failed login attempt"
+    weight: 5
+    flow:
+      - post:
+          url: "/api/sessions/login"
+          json:
+            key: "nonexistent"
+            phone: "+34600000000"
+          expect:
+            - statusCode: 404

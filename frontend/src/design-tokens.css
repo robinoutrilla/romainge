@@ -1,0 +1,194 @@
+/* ═══════════════════════════════════════════════════════════════
+   design-tokens.css — CSS Custom Properties for RomainGE
+   Dark theme by default (:root), light theme via [data-theme="light"]
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Dark Theme (default) ─── */
+:root {
+  /* Colors — Background */
+  --color-bg: #0a0f14;
+  --color-bg-secondary: rgba(255, 255, 255, 0.03);
+  --color-bg-tertiary: rgba(255, 255, 255, 0.05);
+  --color-bg-hover: rgba(255, 255, 255, 0.08);
+
+  /* Colors — Text */
+  --color-text: #e8e6e3;
+  --color-text-secondary: rgba(232, 230, 227, 0.5);
+  --color-text-tertiary: rgba(232, 230, 227, 0.3);
+  --color-text-muted: rgba(232, 230, 227, 0.15);
+
+  /* Colors — Border */
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-hover: rgba(0, 206, 201, 0.4);
+
+  /* Colors — Accent */
+  --color-accent: #00cec9;
+  --color-accent-bg: rgba(0, 206, 201, 0.15);
+  --color-accent-border: rgba(0, 206, 201, 0.2);
+  --color-accent-gradient: linear-gradient(135deg, #00b894, #00cec9);
+
+  /* Colors — Semantic */
+  --color-success: #00b894;
+  --color-error: #d63031;
+  --color-error-bg: rgba(214, 48, 49, 0.1);
+  --color-error-border: rgba(214, 48, 49, 0.2);
+  --color-warning: #ff9800;
+  --color-purple: #6c5ce7;
+  --color-purple-bg: rgba(108, 92, 231, 0.08);
+
+  /* Colors — Header */
+  --color-header-bg: rgba(10, 15, 20, 0.85);
+  --color-header-border: rgba(255, 255, 255, 0.04);
+
+  /* Colors — Input */
+  --color-input-bg: rgba(255, 255, 255, 0.04);
+  --color-input-border: rgba(255, 255, 255, 0.08);
+
+  /* Colors — Chat */
+  --color-chat-user: rgba(0, 206, 201, 0.15);
+  --color-chat-user-border: rgba(0, 206, 201, 0.2);
+  --color-chat-agent: rgba(255, 255, 255, 0.05);
+  --color-chat-agent-border: rgba(255, 255, 255, 0.06);
+
+  /* Colors — Misc */
+  --color-scroll-thumb: rgba(0, 206, 201, 0.2);
+  --color-radial-gradient: radial-gradient(ellipse at 20% 0%, rgba(0, 206, 201, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(0, 184, 148, 0.04) 0%, transparent 50%);
+  --color-check-bg: transparent;
+  --color-check-border: rgba(255, 255, 255, 0.15);
+
+  /* Typography */
+  --font-primary: 'DM Sans', sans-serif;
+  --font-display: 'Playfair Display', serif;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.6);
+  --shadow-button: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 20px rgba(0, 206, 201, 0.15);
+}
+
+/* ─── Light Theme ─── */
+[data-theme="light"] {
+  /* Colors — Background */
+  --color-bg: #f5f7fa;
+  --color-bg-secondary: rgba(0, 0, 0, 0.02);
+  --color-bg-tertiary: rgba(0, 0, 0, 0.04);
+  --color-bg-hover: rgba(0, 0, 0, 0.06);
+
+  /* Colors — Text */
+  --color-text: #1a1a2e;
+  --color-text-secondary: rgba(26, 26, 46, 0.55);
+  --color-text-tertiary: rgba(26, 26, 46, 0.35);
+  --color-text-muted: rgba(26, 26, 46, 0.15);
+
+  /* Colors — Border */
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-hover: rgba(0, 128, 128, 0.5);
+
+  /* Colors — Accent */
+  --color-accent: #008080;
+  --color-accent-bg: rgba(0, 128, 128, 0.1);
+  --color-accent-border: rgba(0, 128, 128, 0.2);
+  --color-accent-gradient: linear-gradient(135deg, #00796b, #008080);
+
+  /* Colors — Semantic */
+  --color-success: #00796b;
+  --color-error: #c0392b;
+  --color-error-bg: rgba(192, 57, 43, 0.08);
+  --color-error-border: rgba(192, 57, 43, 0.15);
+  --color-warning: #e65100;
+  --color-purple: #5e35b1;
+  --color-purple-bg: rgba(94, 53, 177, 0.06);
+
+  /* Colors — Header */
+  --color-header-bg: rgba(245, 247, 250, 0.92);
+  --color-header-border: rgba(0, 0, 0, 0.06);
+
+  /* Colors — Input */
+  --color-input-bg: rgba(0, 0, 0, 0.03);
+  --color-input-border: rgba(0, 0, 0, 0.1);
+
+  /* Colors — Chat */
+  --color-chat-user: rgba(0, 128, 128, 0.1);
+  --color-chat-user-border: rgba(0, 128, 128, 0.15);
+  --color-chat-agent: rgba(0, 0, 0, 0.03);
+  --color-chat-agent-border: rgba(0, 0, 0, 0.06);
+
+  /* Colors — Misc */
+  --color-scroll-thumb: rgba(0, 128, 128, 0.2);
+  --color-radial-gradient: radial-gradient(ellipse at 20% 0%, rgba(0, 128, 128, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(0, 121, 107, 0.03) 0%, transparent 50%);
+  --color-check-bg: #ffffff;
+  --color-check-border: rgba(0, 0, 0, 0.2);
+
+  /* Shadows (lighter for light theme) */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0, 0, 0, 0.05);
+  --shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.15);
+  --shadow-button: 0 2px 6px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 20px rgba(0, 128, 128, 0.1);
+}
+
+/* ─── Keyframe Animations ─── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--color-accent-bg);
+  }
+  50% {
+    box-shadow: 0 0 40px var(--color-accent-bg);
+  }
+}
+
+@keyframes typingDot {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}

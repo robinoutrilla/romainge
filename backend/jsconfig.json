@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "baseUrl": ".",
+    "paths": {
+      "#types": ["./types/index.d.ts"]
+    }
+  },
+  "include": ["**/*.js", "types/**/*.d.ts"],
+  "exclude": ["node_modules", "coverage", "lib/generated"]
+}

@@ -1,0 +1,139 @@
+// ═══════════════════════════════════════════════════════════════
+// Prisma Schema — RomainGE PostgreSQL
+// ═══════════════════════════════════════════════════════════════
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../lib/generated/prisma"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Multi-tenant: Asesorías fiscales ────────────────────────
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  plan      String   @default("basic") // basic | pro | enterprise
+  maxAgents Int      @default(39) @map("max_agents")
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sessions    Session[]
+  callHistory CallHistory[]
+  agents      TenantAgent[]
+  documents   Document[]
+
+  @@map("tenants")
+}
+
+// ─── Agentes personalizados por tenant ───────────────────────
+model TenantAgent {
+  id           String  @id @default(uuid())
+  tenantId     String  @map("tenant_id")
+  serviceId    String  @map("service_id")
+  customName   String? @map("custom_name")
+  customPrompt String? @map("custom_prompt") @db.Text
+  enabled      Boolean @default(true)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, serviceId])
+  @@map("tenant_agents")
+}
+
+// ─── Sesiones ────────────────────────────────────────────────
+model Session {
+  id              String    @id @default(uuid())
+  tenantId        String?   @map("tenant_id")
+  key             String
+  callerName      String    @map("caller_name")
+  callerLastName  String    @default("") @map("caller_last_name")
+  callerPhone     String    @map("caller_phone")
+  serviceId       String    @map("service_id")
+  active          Boolean   @default(true)
+  keyUsed         Boolean   @default(false) @map("key_used")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  expiresAt       DateTime  @map("expires_at")
+  // Soft-delete
+  deletedAt       DateTime? @map("deleted_at")
+  retentionUntil  DateTime? @map("retention_until")
+
+  tenant    Tenant?   @relation(fields: [tenantId], references: [id])
+  messages  Message[]
+  documents Document[]
+
+  @@index([key, callerPhone])
+  @@index([deletedAt])
+  @@index([retentionUntil])
+  @@index([tenantId])
+  @@map("sessions")
+}
+
+// ─── Mensajes con búsqueda full-text ─────────────────────────
+model Message {
+  id          String   @id @default(uuid())
+  sessionId   String   @map("session_id")
+  role        String   // "user" | "agent" | "system"
+  text        String   @db.Text
+  textPlain   String?  @map("text_plain") @db.Text
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+// ─── Historial de llamadas ───────────────────────────────────
+model CallHistory {
+  id            String   @id @default(uuid())
+  tenantId      String?  @map("tenant_id")
+  callSid       String?  @unique @map("call_sid")
+  callerPhone   String   @map("caller_phone")
+  serviceId     String   @map("service_id")
+  status        String   @default("completed") // completed | missed | transferred | queued
+  duration      Int      @default(0)
+  language      String   @default("es-ES")
+  nifProvided   String?  @map("nif_provided")
+  sessionId     String?  @map("session_id")
+  recordingUrl  String?  @map("recording_url")
+  transferredTo String?  @map("transferred_to")
+  metadata      Json     @default("{}")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id])
+
+  @@index([serviceId])
+  @@index([callerPhone])
+  @@index([createdAt])
+  @@index([tenantId])
+  @@map("call_history")
+}
+
+// ─── Documentos adjuntos ─────────────────────────────────────
+model Document {
+  id          String   @id @default(uuid())
+  tenantId    String?  @map("tenant_id")
+  sessionId   String   @map("session_id")
+  filename    String
+  mimeType    String   @map("mime_type")
+  size        Int
+  storagePath String   @map("storage_path")
+  storageType String   @default("local") @map("storage_type") // local | s3
+  uploadedBy  String   @map("uploaded_by") // "user" | "agent"
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  tenant  Tenant?  @relation(fields: [tenantId], references: [id])
+  session Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([tenantId])
+  @@map("documents")
+}

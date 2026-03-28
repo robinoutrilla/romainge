@@ -1,0 +1,57 @@
+{
+  "name": "romainge-backend",
+  "version": "1.0.0",
+  "description": "RomainGE - Plataforma de Gestión Fiscal con IA para España",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@prisma/client": "^7.6.0",
+    "@sentry/node": "^10.46.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^8.0.0",
+    "ioredis": "^5.4.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.1.1",
+    "nodemailer": "^6.10.0",
+    "pdfkit": "^0.16.0",
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0",
+    "prisma": "^7.6.0",
+    "twilio": "^5.4.0",
+    "uuid": "^10.0.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@vitest/coverage-v8": "^3.2.4",
+    "playwright": "^1.58.2",
+    "supertest": "^7.2.2",
+    "vitest": "^3.0.0"
+  },
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "build": "echo 'No build step needed for Node.js'",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:load": "npx artillery run tests/load/artillery-config.yml",
+    "setup:twilio": "node scripts/setup-twilio.js",
+    "migrate": "node scripts/migrate.js migrate",
+    "migrate:rollback": "node scripts/migrate.js rollback",
+    "migrate:status": "node scripts/migrate.js status",
+    "migrate:reset": "node scripts/migrate.js reset",
+    "backup:redis": "node scripts/backup-redis.js",
+    "backup:redis:restore": "node scripts/backup-redis.js restore"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

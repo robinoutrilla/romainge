@@ -1,0 +1,12 @@
+{
+  "voice_relay_enabled": true,
+  "redis_cache_enabled": true,
+  "postgresql_enabled": true,
+  "email_alerts_enabled": false,
+  "sentry_enabled": false,
+  "multi_tenant": false,
+  "response_streaming": true,
+  "phone_verification": false,
+  "document_upload": true,
+  "admin_dashboard": true
+}

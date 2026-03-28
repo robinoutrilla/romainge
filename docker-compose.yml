@@ -1,0 +1,93 @@
+# ═══════════════════════════════════════════════════════════════
+# docker-compose.yml — RomainGE full stack
+# ═══════════════════════════════════════════════════════════════
+# Uso:
+#   docker compose up -d           # Arrancar todo
+#   docker compose up -d --build   # Rebuild + arrancar
+#   docker compose logs -f backend # Ver logs
+#   docker compose down            # Parar todo
+
+services:
+  # ─── Backend API + WebSocket ─────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./backend/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=${DATABASE_URL:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - uploads:/app/uploads
+    networks:
+      - romainge
+
+  # ─── Redis (sessions + cache) ────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - romainge
+
+  # ─── PostgreSQL (optional — uncomment to use) ────────────────
+  # postgres:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_DB: romainge
+  #     POSTGRES_USER: romainge
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - pg-data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U romainge"]
+  #     interval: 10s
+  #     timeout: 3s
+  #     retries: 5
+  #   restart: unless-stopped
+  #   networks:
+  #     - romainge
+
+  # ─── Frontend (dev server — for production use Vercel/nginx) ──
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://backend:3001
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - romainge
+
+volumes:
+  redis-data:
+  uploads:
+  # pg-data:
+
+networks:
+  romainge:
+    driver: bridge

@@ -21,9 +21,5 @@
     "enabled": true,
     "autoAlias": true,
     "silent": false
-  },
-  "autoExpireDeployments": {
-    "expiration": "30d",
-    "deploymentsToKeep": 10
   }
 }

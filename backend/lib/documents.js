@@ -9,6 +9,8 @@ import path from "path";
 import crypto from "crypto";
 import prisma from "./prisma.js";
 
+const noDB = !prisma;
+
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.cwd(), "uploads");
 const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE_MB) || 10; // MB
 const ALLOWED_TYPES = [
@@ -37,6 +39,7 @@ export async function uploadDocument({
   uploadedBy,
   tenantId,
 }) {
+  if (noDB) throw new Error("Document storage requires a database connection");
   // Validate
   if (!ALLOWED_TYPES.includes(mimeType)) {
     throw new Error(`Tipo de archivo no permitido: ${mimeType}`);
@@ -98,11 +101,13 @@ export async function uploadDocument({
 
 // ─── Get document metadata ──────────────────────────────────
 export async function getDocument(documentId) {
+  if (noDB) return null;
   return prisma.document.findUnique({ where: { id: documentId } });
 }
 
 // ─── Get document content ───────────────────────────────────
 export async function getDocumentContent(documentId) {
+  if (noDB) return null;
   const doc = await prisma.document.findUnique({ where: { id: documentId } });
   if (!doc) return null;
 
@@ -126,6 +131,7 @@ export async function getDocumentContent(documentId) {
 
 // ─── List documents for session ─────────────────────────────
 export async function listDocuments(sessionId) {
+  if (noDB) return [];
   return prisma.document.findMany({
     where: { sessionId },
     orderBy: { createdAt: "desc" },
@@ -142,6 +148,7 @@ export async function listDocuments(sessionId) {
 
 // ─── Delete document ────────────────────────────────────────
 export async function deleteDocument(documentId) {
+  if (noDB) return null;
   const doc = await prisma.document.findUnique({ where: { id: documentId } });
   if (!doc) return false;
 

@@ -5,8 +5,12 @@
 
 import prisma from "./prisma.js";
 
+const noDB = !prisma;
+const requireDB = () => { if (noDB) throw new Error("Multi-tenant requires a database connection"); };
+
 // ─── Crear tenant ───────────────────────────────────────────
 export async function createTenant({ name, slug, plan = "basic", maxAgents = 39, settings = {} }) {
+  requireDB();
   return prisma.tenant.create({
     data: { name, slug, plan, maxAgents, settings },
   });
@@ -14,6 +18,7 @@ export async function createTenant({ name, slug, plan = "basic", maxAgents = 39,
 
 // ─── Obtener tenant por slug ────────────────────────────────
 export async function getTenantBySlug(slug) {
+  requireDB();
   return prisma.tenant.findUnique({
     where: { slug },
     include: { agents: true },
@@ -22,6 +27,7 @@ export async function getTenantBySlug(slug) {
 
 // ─── Obtener tenant por ID ──────────────────────────────────
 export async function getTenant(id) {
+  requireDB();
   return prisma.tenant.findUnique({
     where: { id },
     include: { agents: true },
@@ -30,6 +36,7 @@ export async function getTenant(id) {
 
 // ─── Actualizar tenant ──────────────────────────────────────
 export async function updateTenant(id, data) {
+  requireDB();
   const { name, plan, maxAgents, settings } = data;
   return prisma.tenant.update({
     where: { id },
@@ -44,6 +51,7 @@ export async function updateTenant(id, data) {
 
 // ─── Listar tenants ─────────────────────────────────────────
 export async function listTenants({ limit = 50, offset = 0 } = {}) {
+  requireDB();
   const [tenants, total] = await Promise.all([
     prisma.tenant.findMany({
       orderBy: { createdAt: "desc" },
@@ -61,6 +69,7 @@ export async function listTenants({ limit = 50, offset = 0 } = {}) {
 
 // ─── Configurar agente personalizado para tenant ────────────
 export async function setTenantAgent(tenantId, serviceId, { customName, customPrompt, enabled = true }) {
+  requireDB();
   return prisma.tenantAgent.upsert({
     where: { tenantId_serviceId: { tenantId, serviceId } },
     create: {
@@ -80,6 +89,7 @@ export async function setTenantAgent(tenantId, serviceId, { customName, customPr
 
 // ─── Obtener agentes del tenant ─────────────────────────────
 export async function getTenantAgents(tenantId) {
+  requireDB();
   return prisma.tenantAgent.findMany({
     where: { tenantId },
     orderBy: { serviceId: "asc" },
@@ -88,6 +98,7 @@ export async function getTenantAgents(tenantId) {
 
 // ─── Obtener config de un agente específico para tenant ─────
 export async function getTenantAgent(tenantId, serviceId) {
+  requireDB();
   return prisma.tenantAgent.findUnique({
     where: { tenantId_serviceId: { tenantId, serviceId } },
   });
@@ -95,6 +106,7 @@ export async function getTenantAgent(tenantId, serviceId) {
 
 // ─── Eliminar agente personalizado ──────────────────────────
 export async function removeTenantAgent(tenantId, serviceId) {
+  requireDB();
   return prisma.tenantAgent.delete({
     where: { tenantId_serviceId: { tenantId, serviceId } },
   }).catch(() => null);
@@ -102,6 +114,7 @@ export async function removeTenantAgent(tenantId, serviceId) {
 
 // ─── Estadísticas del tenant ────────────────────────────────
 export async function getTenantStats(tenantId) {
+  requireDB();
   const [sessions, calls, documents, agents] = await Promise.all([
     prisma.session.count({ where: { tenantId, deletedAt: null } }),
     prisma.callHistory.count({ where: { tenantId } }),
@@ -114,5 +127,6 @@ export async function getTenantStats(tenantId) {
 
 // ─── Eliminar tenant (cascade) ──────────────────────────────
 export async function deleteTenant(id) {
+  requireDB();
   return prisma.tenant.delete({ where: { id } });
 }

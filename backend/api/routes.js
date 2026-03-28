@@ -1289,9 +1289,10 @@ router.get("/health", async (req, res) => {
   // ─── Check PostgreSQL (Prisma) ─────────────────────────────
   try {
     if (process.env.DATABASE_URL) {
-      const { prisma } = await import("../lib/prisma.js");
+      const prismaModule = await import("../lib/prisma.js");
+      const prismaClient = prismaModule.default;
       const start = Date.now();
-      await prisma.$queryRaw`SELECT 1`;
+      await prismaClient.$queryRaw`SELECT 1`;
       checks.services.postgresql = {
         status: "ok",
         latencyMs: Date.now() - start,

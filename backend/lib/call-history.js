@@ -4,6 +4,9 @@
 
 import prisma from "./prisma.js";
 
+// ─── Guard: no-op when Prisma is unavailable ────────────────
+const noDB = !prisma;
+
 // ─── Registrar llamada ──────────────────────────────────────
 export async function logCall({
   callSid,
@@ -19,6 +22,7 @@ export async function logCall({
   metadata = {},
   tenantId,
 }) {
+  if (noDB) return { id: "mem-" + Date.now(), callSid, serviceId, status, createdAt: new Date() };
   return prisma.callHistory.create({
     data: {
       callSid,
@@ -59,6 +63,7 @@ export async function getCallHistory({
     if (until) where.createdAt.lte = new Date(until);
   }
 
+  if (noDB) return { calls: [], total: 0 };
   const [calls, total] = await Promise.all([
     prisma.callHistory.findMany({
       where,
@@ -82,6 +87,7 @@ export async function getCallStatsByService({ since, until, tenantId } = {}) {
     if (until) where.createdAt.lte = new Date(until);
   }
 
+  if (noDB) return {};
   const stats = await prisma.callHistory.groupBy({
     by: ["serviceId"],
     where,
@@ -126,6 +132,7 @@ export async function getCallStatsGlobal({ since, until, tenantId } = {}) {
     if (until) where.createdAt.lte = new Date(until);
   }
 
+  if (noDB) return { totalCalls: 0, avgDuration: 0, byStatus: {}, byLanguage: {} };
   const [total, avgDuration, byStatus, byLanguage] = await Promise.all([
     prisma.callHistory.count({ where }),
     prisma.callHistory.aggregate({ where, _avg: { duration: true } }),

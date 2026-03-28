@@ -5,6 +5,8 @@
 
 import prisma from "./prisma.js";
 
+const noDB = !prisma;
+
 // ─── Búsqueda full-text en mensajes ─────────────────────────
 export async function searchMessages({
   query,
@@ -16,7 +18,7 @@ export async function searchMessages({
   limit = 20,
   offset = 0,
 }) {
-  if (!query || query.trim().length < 2) {
+  if (noDB || !query || query.trim().length < 2) {
     return { results: [], total: 0 };
   }
 
@@ -107,7 +109,7 @@ export async function searchMessagesSimple({
   limit = 20,
   offset = 0,
 }) {
-  if (!query || query.trim().length < 2) {
+  if (noDB || !query || query.trim().length < 2) {
     return { results: [], total: 0 };
   }
 
